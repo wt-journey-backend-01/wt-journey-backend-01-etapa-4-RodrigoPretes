@@ -12,11 +12,20 @@ function buildUser(data){
         return { valid: false, message: 'Body inválido: esperado um objeto.' };
     }
 
-    for (const k of allowed) {
-        if (Object.prototype.hasOwnProperty.call(data, k) && data[k] !== undefined) {
-            payload[k] = data[k];
+    const keys = Object.keys(data);
+    for (const key of keys) {
+        if (!allowed.includes(key)) {
+            return { valid: false, message: `Campo extra não permitido: ${key}` };
         }
     }
+
+    for (const field of allowed) {
+        if (!data[field] || typeof data[field] !== 'string' || data[field].trim() === '') {
+            return { valid: false, message: `Campo obrigatório ausente ou inválido: ${field}` };
+        }
+        payload[field] = data[field].trim();
+    }
+
 
     if (payload.nome !== undefined) {
         if (typeof payload.nome !== 'string' || payload.nome.trim() === '') {
@@ -30,10 +39,16 @@ function buildUser(data){
         }
     }
 
-    if (payload.password !== undefined) {
-        if (typeof payload.password !== 'string' || payload.password.trim() === '') {
+    if (payload.senha !== undefined) {
+        if (typeof payload.senha !== 'string' || payload.senha.trim() === '') {
             return { valid: false, message: 'Senha enviada é inválida, deve ser um texto.' };
         }
+    }
+
+    const senha = payload.senha;
+    const senhaRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (!senhaRegex.test(senha)) {
+        return { valid: false, message: 'Senha não atende aos critérios de segurança.' };
     }
 
     return { valid: true, payload };
@@ -94,7 +109,7 @@ async function login(req, res){
 
         const token = generateToken(user.data);
 
-        return res.status(200).json({access_token: token});
+        return res.status(200).json({acess_token: token});
 
     } catch (e) {
         const error = createError(500, e.message);

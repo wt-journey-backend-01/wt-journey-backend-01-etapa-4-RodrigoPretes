@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 
 async function registerUser(newUser){
     try{
-        const [userRegistred] = await db.insert(newUser).into('users').returning('*');
+        const [userRegistred] = await db.insert(newUser).into('usuarios').returning('*');
 
         return {
             status: 201,
@@ -21,14 +21,14 @@ async function registerUser(newUser){
 
 async function findUserByEmail(email) {
     try{
-        const user = await db.select('*').from('users').where('users.email', email).returning('*');
+        const user = await db.select('*').from('usuarios').where('usuarios.email', email).returning('*');
 
         if(!user.length){
             return createError(404, "Não foi encontrado nenhum usuário")
         }
 
         return {
-            status: 201,
+            status: 200,
             data: {
                 ...user[0]
             },
@@ -41,14 +41,14 @@ async function findUserByEmail(email) {
 
 async function findUserByUsername(username) {
     try{
-        const user =  await db('users').where( 'users.username', username ).returning('*');
+        const user =  await db('usuarios').where( 'usuarios.username', username ).returning('*');
 
         if(!user.length){
             return createError(404, "Não foi encontrado nenhum usuário com esse username")
         }
 
         return {
-            status: 201,
+            status: 200,
             data: {
                 ...user[0]
             },
@@ -61,14 +61,14 @@ async function findUserByUsername(username) {
 
 async function findById(id) {
     try{
-        const user = await db('users').where('users.id', id).returning('*');
+        const user = await db('usuarios').where('usuarios.id', id).returning('*');
 
         if(!user){
             return createError(404, "Não forma encontrados nenhum usuário com esse ID.")
         }
 
         return {
-            status: 201,
+            status: 200,
             data: {
                 ...user[0]
             },
@@ -81,13 +81,13 @@ async function findById(id) {
 
 async function deleteUserById(id){
     try{
-        const user = await db('users').where('users.id', id).returning('*');
+        const user = await db('usuarios').where('usuarios.id', id).returning('*');
 
         if(!user){
             return createError(404, "Não forma encontrados nenhum usuário com esse ID.")
         }
 
-        const deletedUser = await db('users').where('users.id', id).del();
+        const deletedUser = await db('usuarios').where('usuarios.id', id).del();
 
         if(deletedUser === 0){
             return createError(400, "Não foi possível deletar o usuário.")
