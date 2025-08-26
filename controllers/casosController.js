@@ -82,10 +82,10 @@ async function getAllCasos(req, res) {
 	if (status) {
 		if (status !== "aberto" && status !== "solucionado") {
 			const error = createError(400, "Status inválido, deve ser 'aberto' ou 'solucionado'");
-			return res.status(error.status).json(error);
+			return res.status(error.status).json({msg: error.msg});
 		}
 		const result = await casosRepository.findByStatus(status);
-		return res.status(result.status).json(result);
+		return res.status(result.status).json(result.data);
 	}
 
 	if (agente_id) {
@@ -94,11 +94,11 @@ async function getAllCasos(req, res) {
 			return res.status(validID.status).json(validID);
 		}
 		const result = await casosRepository.findByAgent(agente_id);
-		return res.status(result.status).json(result);
+		return res.status(result.status).json(result.data);
 	}
 
 	const result = await casosRepository.findAllCases();
-	res.status(result.status).json(result);
+	res.status(result.status).json(result.data);
 }
 
 async function getCaseByID(req, res) {
@@ -108,22 +108,22 @@ async function getCaseByID(req, res) {
 	} 
 	const caseID = req.params.id;
 	const result = await casosRepository.getCaseByID(caseID);
-	res.status(result.status).json(result);
+	res.status(result.status).json(result.data);
 }
 
 async function insertCase(req, res) {
 	const validCaseData = await buildCase(req.body, 'post');
 	if (!validCaseData.valid) {
 		const error = createError(400, validCaseData.message);
-		return res.status(error.status).json(error);
+		return res.status(error.status).json({msg: error.msg});
 	}
 	const existingAgent = await agentesRepository.getAgentByID(req.body.agente_id);
 	if (existingAgent.status !== 200) {
 		const error = createError(existingAgent.status, existingAgent.msg);
-		return res.status(error.status).json(error);
+		return res.status(error.status).json({msg: error.msg});
 	}
 	const result = await casosRepository.insertCase(validCaseData.payload);
-	return res.status(result.status).json(result);
+	return res.status(result.status).json(result.data);
 }
 
 async function updateCaseById(req, res){
@@ -134,10 +134,10 @@ async function updateCaseById(req, res){
 	const validCaseData = await buildCase(req.body, 'put');
 	if (!validCaseData.valid) {
 		const error = createError(400, validCaseData.message);
-		return res.status(error.status).json(error);
+		return res.status(error.status).json({msg: error.msg});
 	}
 	const result = await casosRepository.updateCaseById(req.params.id, validCaseData.payload);
-	return res.status(result.status).json(result);
+	return res.status(result.status).json(result.data);
 }
 
 async function patchCaseByID(req, res) {
@@ -148,10 +148,10 @@ async function patchCaseByID(req, res) {
 	const validCaseData = await buildCase(req.body, 'patch');
 	if (!validCaseData.valid) {
 		const error = createError(400, validCaseData.message);
-		return res.status(error.status).json(error);
+		return res.status(error.status).json({msg: error.msg});
 	}
 	const result = await casosRepository.patchCaseByID(req.params.id, validCaseData.payload);
-	return res.status(result.status).json(result);
+	return res.status(result.status).json(result.data);
 }
 
 async function deleteCaseById(req, res) {
@@ -163,7 +163,7 @@ async function deleteCaseById(req, res) {
 	if (result.status === 204) {
 		return res.status(204).send();
 	} else {
-		return res.status(result.status).json(result);
+		return res.status(result.status).json(result.data);
 	}
 }
 

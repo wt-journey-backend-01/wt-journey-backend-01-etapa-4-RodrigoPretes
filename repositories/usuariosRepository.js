@@ -13,7 +13,7 @@ async function registerUser(newUser){
             msg: "Usuário registrado com sucesso"
         };
     }catch(e){
-        return createError(400, `Ocorreu um erro ao realizar a inserção de um novo usuário`);
+        return createError(400, `Ocorreu um erro ao realizar a inserção de um novo usuário: ${e.message}`);
     }
 }
 
@@ -33,7 +33,7 @@ async function findUserByEmail(email) {
             msg: "Usuário encontrado com sucesso"
         }
     }catch(e){
-        return createError(400, "Não foi encontrado nenhum usuário")
+        return createError(400, `Não foi encontrado nenhum usuário com esse email: ${e.message}`);
     }
 }
 
@@ -53,7 +53,7 @@ async function findUserByUsername(username) {
             msg: "Usuário encontrado com sucesso"
         }
     }catch(e){
-        return createError(400, "Não foi encontrado nenhum usuário com esse username");
+        return createError(400, `Não foi encontrado nenhum usuário com esse username: ${e.message}`);
     }
 }
 
@@ -73,7 +73,7 @@ async function findById(id) {
             msg: "Usuário encontrado com sucesso"
         }
     }catch(e){
-        return createError(400, "Não foram encontrados nenhum usuário com esse ID.")
+        return createError(400, `Não foram encontrados nenhum usuário com esse ID: ${e.message}`)
     }
 }
 
@@ -97,7 +97,7 @@ async function deleteUserById(id){
             msg: "Usuário deletado com sucesso"
         }
     }catch(e){
-        return createError(400, "Não foram encontrados nenhum usuário com esse ID.")
+        return createError(400, `Não foram encontrados nenhum usuário com esse ID: ${e.message}`);
     }
 }
 

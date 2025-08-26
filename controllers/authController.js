@@ -61,7 +61,7 @@ async function register(req, res){
     
     if (!buildedUser.valid) {
         const error = createError(400, buildedUser.message);
-        return res.status(error.status).json(error.data);
+        return res.status(error.status).json({msg: error.msg});
     }
     
     try{
@@ -80,7 +80,7 @@ async function register(req, res){
 
     } catch (e) {
         const error = createError(500, e.message);
-        return res.status(error.status).json(error.data);
+        return res.status(error.status).json({msg: error.msg});
     }
 }
 
@@ -89,14 +89,14 @@ async function login(req, res){
 
     if (!email || !senha) {
         const error = createError(400, 'Email e senha são obrigatórios.');
-        return res.status(error.status).json(error.data);
+        return res.status(error.status).json({msg: error.msg});
     }
 
     try {
         const user = await userRepository.findUserByEmail(email);
         if (user.status === 404) {
             const error = createError(404, user.msg);
-            return res.status(error.status).json(error.data);
+            return res.status(error.status).json({msg: error.msg});
         }
 
 
@@ -104,7 +104,7 @@ async function login(req, res){
 
         if (!isMatch) {
             const error = createError(401, 'Credenciais inválidas.');
-            return res.status(error.status).json(error.data);
+            return res.status(error.status).json({msg: error.msg});
         }
 
         const token = generateToken(user.data);
@@ -113,7 +113,7 @@ async function login(req, res){
 
     } catch (e) {
         const error = createError(500, e.message);
-        return res.status(error.status).json(error.data);
+        return res.status(error.status).json({msg: error.msg});
     }
 }
 
@@ -124,7 +124,7 @@ async function deleteUserById(req, res) {
         const result = await userRepository.deleteUserById(id);
         if (result.status === 404) {
             const error = createError(404, result.msg);
-            return res.status(error.status).json(error.data);
+            return res.status(error.status).json({msg: error.msg});
         }
 
         if (result.status === 204) {
@@ -133,7 +133,7 @@ async function deleteUserById(req, res) {
 
     } catch (e) {
         const error = createError(500, e.message);
-        return res.status(error.status).json(error.data);
+        return res.status(error.status).json({msg: error.msg});
     }
 }
 
