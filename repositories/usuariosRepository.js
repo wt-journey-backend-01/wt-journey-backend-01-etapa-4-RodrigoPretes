@@ -1,7 +1,5 @@
 const { createError } = require('../utils/errorHandler');
 const db = require('../db/db');
-const { endsWith } = require('zod');
-const bcrypt = require('bcrypt');
 
 async function registerUser(newUser){
     try{
@@ -83,7 +81,7 @@ async function deleteUserById(id){
     try{
         const user = await db.select('*').from('usuarios').where('usuarios.id', id);
 
-        if(!user){
+        if(!user.length){
             return createError(404, "Não foram encontrados nenhum usuário com esse ID.")
         }
 

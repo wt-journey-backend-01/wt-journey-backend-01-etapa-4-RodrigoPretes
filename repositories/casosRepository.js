@@ -17,7 +17,7 @@ async function findAllCases() {
             msg: "Lista de casos obtida com sucesso"
         }
     }catch(e){
-        return createError(400, `Erro ao realizar a busca dos casos na base de dados.`)
+        return createError(400, `Erro ao realizar a busca dos casos na base de dados, erro detalhado: ${e.message}`)
     }
 }
 
@@ -36,7 +36,7 @@ async function findByStatus(status) {
             msg: `Casos com status '${status}' encontrados com sucesso`
         };
     }catch(e){
-        return createError(400, `Erro ao realizar a busca dos casos com o status informado.`);
+        return createError(400, `Erro ao realizar a busca dos casos com o status informado, erro detalhado: ${e.message}`);
     }
 }
 
@@ -45,7 +45,7 @@ async function findByAgent(agente_id) {
         const casesByAgent = await db.select('*').from('casos').where('casos.agente_id', agente_id);
 
         if(!casesByAgent.length){
-            return createError(404, `Não forma encontrados casos para o agente informado com ID: ${agente_id}`);
+            return createError(404, `Não forma encontrados casos para o agente informado com ID: ${agente_id}.`);
         }
 
 
@@ -56,7 +56,7 @@ async function findByAgent(agente_id) {
         };
 
     }catch(e){
-        return createError(400, `Erro ao realizar a busca dos casos para o agente informado.`)
+        return createError(400, `Erro ao realizar a busca dos casos para o agente informado, erro detalhado: ${e.message}`)
     }
 }
 
@@ -74,7 +74,7 @@ async function getCaseByID(id) {
                 msg: "Caso encontrado com sucesso"
             };
     }catch(e){
-        return createError(400, `Erro ao realizar a busca do caso para o ID informado.`)
+        return createError(400, `Erro ao realizar a busca do caso para o ID informado, erro detalhado: ${e.message}`)
     }
 }
 
@@ -89,7 +89,7 @@ async function insertCase(newCase){
             msg: "Caso inserido com sucesso"
         };
     }catch(e){
-        return createError(400, `Ocorreu um erro ao realizar a inserção de um novo caso.`)
+        return createError(400, `Ocorreu um erro ao realizar a inserção de um novo caso, erro detalhado: ${e.message}`)
     }
 }
 
@@ -119,7 +119,7 @@ async function updateCaseById(caseID, caseToBeUpdated){
         }
 
     }catch(e){
-        return createError(400, "Erro ao realizar a atualização do caso informado.")
+        return createError(400, `Erro ao realizar a atualização do caso informado, erro detalhado: ${e.message}`)
     }
 
 }
@@ -151,7 +151,7 @@ async function patchCaseByID(caseID, caseToBePatched){
         }
 
     }catch(e){
-        return createError(400, `Erro ao atualizar caso.`)
+        return createError(400, `Erro ao atualizar caso, erro detalhado: ${e.message}`)
     }
 }
 
@@ -178,7 +178,7 @@ async function deleteCaseById(caseID){
         };
     }
     catch(e){
-        return createError(400, `Erro ao excluir caso.`);
+        return createError(400, `Erro ao excluir caso, erro detalhado: ${e.message}`);
     }
 }
 

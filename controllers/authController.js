@@ -127,7 +127,9 @@ async function deleteUserById(req, res) {
             return res.status(error.status).json(error.data);
         }
 
-        return res.status(204).send();
+        if (result.status === 204) {
+            return res.status(204).send();
+        }
 
     } catch (e) {
         const error = createError(500, e.message);

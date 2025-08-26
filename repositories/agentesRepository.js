@@ -17,7 +17,7 @@ async function findAllAgents() {
             msg: "Lista de agentes obtida com sucesso",
         };
     }catch(e){
-        return createError(400, 'Erro ao realizar a consulta na base de dados.');
+        return createError(400, `Erro ao realizar a consulta na base de dados, erro detalhado: ${e.message}`);
     }
 }
 
@@ -35,7 +35,7 @@ async function getAgentByID(id) {
             msg: "Agente encontrado com sucesso",
         };
     }catch(e){
-        return createError(400, `Erro ao realizar a consulta do agente de id: ${id}.`);
+        return createError(400, `Erro ao realizar a consulta do agente de id: ${id}, erro detalhado: ${e.message}`);
     }
 }
 
@@ -56,7 +56,7 @@ async function findAllAgentCases(agentID) {
             msg: "Agente encontrado com sucesso",
         };
     }catch(e){
-        return createError(400, `Erro ao realizar a consulta do agente de id: ${agentID}.`);
+        return createError(400, `Erro ao realizar a consulta do agente de id: ${agentID}, erro detalhado: ${e.message}`);
     }
 }
 
@@ -74,7 +74,7 @@ async function findByCargo(cargo) {
             msg: 'Agente(s) encontrado(s) com sucesso.'
         };
     }catch(e){
-        return createError(400, `Erro ao realizar a consulta do cargo: ${cargo}`);
+        return createError(400, `Erro ao realizar a consulta do cargo: ${cargo}, erro detalhado: ${e.message}`);
     }
 }
 
@@ -92,7 +92,7 @@ async function sortByIncorporation(sortParam) {
             msg: "Busca de agentes ordenados por dataDeIncorporacao realizada com sucesso."
         };
     }catch(e){
-        return createError(400, "Erro ao realizar a ordenação dos agentes.");
+        return createError(400, `Erro ao realizar a ordenação dos agentes, erro detalhado: ${e.message}`);
     }
 }
 
@@ -109,7 +109,7 @@ async function insertAgent(newAgent) {
             msg: "Agente inserido com sucesso",
         };
     }catch(e){
-        return createError(400, 'Erro ao realizar a inserção de um novo agente.')
+        return createError(400, `Erro ao realizar a inserção de um novo agente, erro detalhado: ${e.message}`);
     }
 }
 
@@ -142,7 +142,7 @@ async function updateAgentById(agentID, agentToBeUpdated) {
         }
 
     }catch(e){
-        return createError(400, `Erro ao atualizar agente.`)
+        return createError(400, `Erro ao atualizar agente, erro detalhado: ${e.message}`)
     }
 }
 
@@ -161,7 +161,7 @@ async function patchAgentByID(agentID, req) {
             .returning(['id', 'nome', 'dataDeIncorporacao', 'cargo']);
         
         if(!patchedAgent.length){
-           return createError(400, `Não foi possível realizar a atualização do agente de ID: ${agentID}`);
+           return createError(400, `Não foi possível realizar a atualização do agente de ID: ${agentID}.`);
         }
 
         const patchedAgentObject = Object.assign({}, patchedAgent[0]);
@@ -176,7 +176,7 @@ async function patchAgentByID(agentID, req) {
         }
 
     }catch(e){
-        return createError(400, `Erro ao atualizar agente.`)
+        return createError(400, `Erro ao atualizar agente, erro detalhado: ${e.message}`)
     }
 }
 
@@ -203,7 +203,7 @@ async function deleteAgentById(agentID) {
         };
     }
     catch(e){
-        return createError(400, `Erro ao excluir agente.`);
+        return createError(400, `Erro ao excluir agente, erro detalhado: ${e.message}`);
     }
 }
 

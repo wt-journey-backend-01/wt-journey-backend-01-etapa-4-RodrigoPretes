@@ -10,16 +10,18 @@ function buildAgent(data, method) {
         return { valid: false, message: 'Body inválido: esperado um objeto.' };
     }
 
+    const keys = Object.keys(data);
+    for (const key of keys) {
+        if (!allowed.includes(key)) {
+            return { valid: false, message: `Campo extra não permitido: ${key}` };
+        }
+    }
+
     if(method !== 'patch'){
         for (const k of allowed) {
             if (data[k] === undefined || data[k] === null || (typeof data[k] === 'string' && data[k].trim() === '')) {
                 return { valid: false, message: `Parâmetro obrigatório ausente ou vazio: ${k}` };
             }
-        }
-    }
-    else{
-        if(data.id){
-            return { valid: false, message: `ID não pode ser sobrescrito.`}
         }
     }
 
@@ -150,7 +152,11 @@ async function deleteAgenteById(req, res) {
         return res.status(invalid.status).json(invalid);
     }
     const result = await agentesRepository.deleteAgentById(req.params.id);
-    res.status(result.status).send();
+    if (result.status === 204) {
+        return res.status(204).send();
+    } else {
+        return res.status(result.status).json(result);
+    }
 }
 
 module.exports = {
