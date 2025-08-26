@@ -10,4 +10,12 @@ function generateToken(payload) {
     });
 }
 
-module.exports = { generateToken };
+function generateRefreshToken(user) {
+    return jwt.sign(
+    { id: user.id },
+    process.env.REFRESH_SECRET,
+    { expiresIn: '7d' } // longo
+    );
+}
+
+module.exports = { generateToken, generateRefreshToken };

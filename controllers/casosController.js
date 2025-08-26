@@ -91,7 +91,7 @@ async function getAllCasos(req, res) {
 	if (agente_id) {
 		const validID = validateID(agente_id)
 		if (validID) {
-			return res.status(validID.status).json(validID);
+			return res.status(validID.status).json({msg: validID.msg});
 		}
 		const result = await casosRepository.findByAgent(agente_id);
 		return res.status(result.status).json(result.data);
@@ -129,7 +129,7 @@ async function insertCase(req, res) {
 async function updateCaseById(req, res){
 	const validID = validateID(req.params.id)
 	if (validID) {
-		return res.status(validID.status).json(validID);
+		return res.status(validID.status).json({msg: validID.msg});
 	}
 	const validCaseData = await buildCase(req.body, 'put');
 	if (!validCaseData.valid) {
@@ -143,7 +143,7 @@ async function updateCaseById(req, res){
 async function patchCaseByID(req, res) {
 	const validID = validateID(req.params.id)
 	if (validID) {
-		return res.status(validID.status).json(validID);
+		return res.status(validID.status).json({msg: validID.msg});
 	}
 	const validCaseData = await buildCase(req.body, 'patch');
 	if (!validCaseData.valid) {
@@ -157,13 +157,11 @@ async function patchCaseByID(req, res) {
 async function deleteCaseById(req, res) {
 	const invalid = validateID(req.params.id);
 	if (invalid){
-		return res.status(invalid.status).json(invalid);
+		return res.status(invalid.status).json({msg: invalid.msg});
 	}
 	const result = await casosRepository.deleteCaseById(req.params.id);
 	if (result.status === 204) {
 		return res.status(204).send();
-	} else {
-		return res.status(result.status).json(result.data);
 	}
 }
 

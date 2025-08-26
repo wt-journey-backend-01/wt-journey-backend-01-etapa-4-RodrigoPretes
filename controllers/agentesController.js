@@ -89,7 +89,7 @@ async function getAllAgentes(req, res) {
 async function getAgenteByID(req, res) {
     const invalid = validateID(req.params.id);
     if (invalid){
-        return res.status(invalid.status).json(invalid);
+        return res.status(invalid.status).json({msg: invalid.msg});
     } 
     const result = await agentesRepository.getAgentByID(req.params.id);
     res.status(result.status).json(result.data);
@@ -98,7 +98,7 @@ async function getAgenteByID(req, res) {
 async function getAllAgentCases(req, res) {
     const invalid = validateID(req.params.id);
     if (invalid){
-        return res.status(invalid.status).json(invalid);
+        return res.status(invalid.status).json({msg: invalid.msg});
     } 
     const result = await agentesRepository.findAllAgentCases(req.params.id);
     if(result.data && result.data.length > 0){
@@ -121,7 +121,7 @@ async function insertAgente(req, res) {
 async function updateAgenteById(req, res) {
     const invalid = validateID(req.params.id);
     if (invalid){
-        return res.status(invalid.status).json(invalid);
+        return res.status(invalid.status).json({msg: invalid.msg});
     } 
     const buildedAgent = buildAgent(req.body, 'put');
     if (!buildedAgent.valid) {
@@ -135,7 +135,7 @@ async function updateAgenteById(req, res) {
 async function patchAgenteByID(req, res) {
     const invalid = validateID(req.params.id);
     if (invalid){
-        return res.status(invalid.status).json(invalid);
+        return res.status(invalid.status).json({msg: invalid.msg});
     } 
     const validAgentPatch = buildAgent(req.body, 'patch');
     if (!validAgentPatch.valid) {
@@ -149,13 +149,11 @@ async function patchAgenteByID(req, res) {
 async function deleteAgenteById(req, res) {
     const invalid = validateID(req.params.id);
     if (invalid){
-        return res.status(invalid.status).json(invalid);
+        return res.status(invalid.status).json({msg: invalid.msg});
     }
     const result = await agentesRepository.deleteAgentById(req.params.id);
     if (result.status === 204) {
         return res.status(204).send();
-    } else {
-        return res.status(result.status).json(result.data);
     }
 }
 

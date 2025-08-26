@@ -1,5 +1,5 @@
 const { createError } = require('../utils/errorHandler');
-const { generateToken } = require('../utils/createToken');
+const { generateToken, generateRefreshToken } = require('../utils/createToken');
 const bcrypt = require('bcrypt');
 const userRepository = require('../repositories/usuariosRepository');
 const jwt = require('jsonwebtoken');
@@ -108,6 +108,12 @@ async function login(req, res){
         }
 
         const token = generateToken(user.data);
+        const refreshToken = generateRefreshToken(user.data);
+
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            sameSite: 'Strict',
+        });
 
         return res.status(200).json({acess_token: token});
 
@@ -115,6 +121,25 @@ async function login(req, res){
         const error = createError(500, e.message);
         return res.status(error.status).json({msg: error.msg});
     }
+}
+
+async function refresh(req, res) {
+  const refreshToken = req.cookies.refresh_token || req.body.refresh_token;
+
+  if (!refreshToken) {
+    const error = createError(401, 'Refresh token ausente');
+    return res.status(error.status).json({ msg: error.msg });
+  }
+
+  jwt.verify(refreshToken, process.env.REFRESH_SECRET, (err, decoded) => {
+    if (err) {
+      const error = createError(403, 'Refresh token inválido');
+      return res.status(error.status).json({ msg: error.msg });
+    }
+
+    const newAccessToken = generateAccessToken({ id: decoded.id, username: decoded.username });
+    return res.status(200).json({ acess_token: newAccessToken });
+  });
 }
 
 async function deleteUserById(req, res) {
@@ -144,6 +169,7 @@ function userLogged(req, res) {
 module.exports = {
     register,
     login,
+    refresh,
     deleteUserById,
     userLogged
 };
