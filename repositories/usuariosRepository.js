@@ -21,7 +21,7 @@ async function registerUser(newUser){
 
 async function findUserByEmail(email) {
     try{
-        const user = await db.select('*').from('usuarios').where('usuarios.email', email).returning('*');
+        const user = await db.select('*').from('usuarios').where('usuarios.email', email);
 
         if(!user.length){
             return createError(404, "Não foi encontrado nenhum usuário")
@@ -41,7 +41,7 @@ async function findUserByEmail(email) {
 
 async function findUserByUsername(username) {
     try{
-        const user =  await db('usuarios').where( 'usuarios.username', username ).returning('*');
+        const user =  await db.select('*').from('usuarios').where( 'usuarios.username', username );
 
         if(!user.length){
             return createError(404, "Não foi encontrado nenhum usuário com esse username")
@@ -61,10 +61,10 @@ async function findUserByUsername(username) {
 
 async function findById(id) {
     try{
-        const user = await db('usuarios').where('usuarios.id', id).returning('*');
+        const user = await db.select('*').from('usuarios').where('usuarios.id', id);
 
-        if(!user){
-            return createError(404, "Não forma encontrados nenhum usuário com esse ID.")
+        if(!user.length){
+            return createError(404, "Não foram encontrados nenhum usuário com esse ID.")
         }
 
         return {
@@ -75,16 +75,16 @@ async function findById(id) {
             msg: "Usuário encontrado com sucesso"
         }
     }catch(e){
-        return createError(400, "Não forma encontrados nenhum usuário com esse ID.")
+        return createError(400, "Não foram encontrados nenhum usuário com esse ID.")
     }
 }
 
 async function deleteUserById(id){
     try{
-        const user = await db('usuarios').where('usuarios.id', id).returning('*');
+        const user = await db.select('*').from('usuarios').where('usuarios.id', id);
 
         if(!user){
-            return createError(404, "Não forma encontrados nenhum usuário com esse ID.")
+            return createError(404, "Não foram encontrados nenhum usuário com esse ID.")
         }
 
         const deletedUser = await db('usuarios').where('usuarios.id', id).del();
@@ -99,7 +99,7 @@ async function deleteUserById(id){
             msg: "Usuário deletado com sucesso"
         }
     }catch(e){
-        return createError(400, "Não forma encontrados nenhum usuário com esse ID.")
+        return createError(400, "Não foram encontrados nenhum usuário com esse ID.")
     }
 }
 

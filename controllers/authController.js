@@ -136,16 +136,7 @@ async function deleteUserById(req, res) {
 }
 
 function userLogged(req, res) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader.split(' ')[1];
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            const error = createError(401, 'Token inválido')
-            return res.status(401).json({ message: error.msg });
-        }
-        const user = decoded;
-        return res.status(200).json({user});
-    });
+    return res.status(200).json({ user: req.user });
 }
 
 module.exports = {

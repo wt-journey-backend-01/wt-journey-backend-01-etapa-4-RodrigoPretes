@@ -67,21 +67,21 @@ async function getAllAgentes(req, res) {
 
     if (cargo) {
         const result = await agentesRepository.findByCargo(cargo);
-        return res.status(result.status).json(result.data);
+        return res.status(result.status).json(result);
     }
 
     if (sort){
         if((sort === 'dataDeIncorporacao' || sort === '-dataDeIncorporacao')) {
             const result = await agentesRepository.sortByIncorporation(sort);
-            return res.status(result.status).json(result.data);
+            return res.status(result.status).json(result);
         }else{
             const error = createError(400, "Parametros de ordenação inválidos!");
-            return res.status(error.status).json(error.data);
+            return res.status(error.status).json(error);
         }
     }
 
     const result = await agentesRepository.findAllAgents();
-    res.status(result.status).json(result.data);
+    res.status(result.status).json(result);
 }
 
 async function getAgenteByID(req, res) {
@@ -90,7 +90,7 @@ async function getAgenteByID(req, res) {
         return res.status(invalid.status).json(invalid);
     } 
     const result = await agentesRepository.getAgentByID(req.params.id);
-    res.status(result.status).json(result.data);
+    res.status(result.status).json(result);
 }
 
 async function getAllAgentCases(req, res) {
@@ -100,9 +100,9 @@ async function getAllAgentCases(req, res) {
     } 
     const result = await agentesRepository.findAllAgentCases(req.params.id);
     if(result.data && result.data.length > 0){
-        res.status(result.status).json(result.data);
+        res.status(result.status).json(result);
     }else{
-        res.status(result.status).json(result.data);
+        res.status(result.status).json(result);
     }
 }
 
@@ -110,10 +110,10 @@ async function insertAgente(req, res) {
     const buildedAgent = buildAgent(req.body, 'post');
     if (!buildedAgent.valid) {
         const error = createError(400, buildedAgent.message);
-        return res.status(error.status).json(error.data);
+        return res.status(error.status).json(error);
     }
     const result = await agentesRepository.insertAgent(buildedAgent.payload);
-    res.status(result.status).json(result.data);
+    res.status(result.status).json(result);
 }
 
 async function updateAgenteById(req, res) {
@@ -124,10 +124,10 @@ async function updateAgenteById(req, res) {
     const buildedAgent = buildAgent(req.body, 'put');
     if (!buildedAgent.valid) {
         const error = createError(400, buildedAgent.message);
-        return res.status(error.status).json(error.data);
+        return res.status(error.status).json(error);
     }
     const result = await agentesRepository.updateAgentById(req.params.id, buildedAgent.payload);
-    res.status(result.status).json(result.data);
+    res.status(result.status).json(result);
 }
 
 async function patchAgenteByID(req, res) {
@@ -138,10 +138,10 @@ async function patchAgenteByID(req, res) {
     const validAgentPatch = buildAgent(req.body, 'patch');
     if (!validAgentPatch.valid) {
         const error = createError(400, validAgentPatch.message);
-        return res.status(error.status).json(error.data);
+        return res.status(error.status).json(error);
     }
     const result = await agentesRepository.patchAgentByID(req.params.id, validAgentPatch.payload);
-    res.status(result.status).json(result.data);
+    res.status(result.status).json(result);
 }
 
 async function deleteAgenteById(req, res) {
