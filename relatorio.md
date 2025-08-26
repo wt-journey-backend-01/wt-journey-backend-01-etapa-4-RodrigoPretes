@@ -1,206 +1,206 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 5 créditos restantes para usar o sistema de feedback AI.
+Você tem 4 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para RodrigoPretes:
 
 Nota final: **50.5/100**
 
-# Feedback para RodrigoPretes 🚓🚀
+Olá RodrigoPretes! 👋🚀
 
-Olá Rodrigo! Antes de mais nada, parabéns pelo esforço e pela dedicação em construir uma API robusta e segura para o Departamento de Polícia. 👏✨
+Primeiro, quero parabenizá-lo pelo empenho e pela organização do seu projeto! 🎉 Você estruturou muito bem seu backend, com pastas claras para controllers, repositories, rotas e middlewares, além de ter implementado corretamente a autenticação via JWT e o hashing das senhas usando bcrypt. Isso já é um grande passo para uma aplicação segura e profissional! 👏
 
----
-
-## 🎉 Pontos Positivos e Conquistas Extras
-
-- Sua implementação da **autenticação** está muito bem feita! A criação de usuários com validação de senha, o login com bcrypt e JWT, e a exclusão de usuários estão funcionando corretamente, com tratamento adequado de erros.  
-- O middleware de autenticação JWT está bem estruturado e protege as rotas conforme esperado.  
-- A documentação no **INSTRUCTIONS.md** está clara e cobre os principais pontos para uso da API, incluindo exemplos de autenticação via token.  
-- Você também conseguiu implementar algumas funcionalidades bônus, como o endpoint `/usuarios/me` para retornar dados do usuário autenticado, e filtros simples em alguns endpoints. Isso mostra que você foi além do básico! 🌟  
-- A estrutura de pastas está organizada e segue o padrão MVC, o que é excelente para manutenção e escalabilidade.
+Também notei que você conseguiu implementar funcionalidades bônus importantes, como o endpoint `/usuarios/me` para retornar os dados do usuário autenticado, e o fluxo de refresh token, mesmo que com pequenos detalhes que podemos ajustar. Isso mostra que você está indo além do básico, o que é incrível! 🌟
 
 ---
 
-## 🚨 Pontos de Atenção e Oportunidades de Melhoria
+## O que podemos melhorar para destravar o restante do projeto e alcançar uma nota ainda melhor? 🕵️‍♂️
 
-### 1. Status Codes e Respostas nos Endpoints de **Agentes** e **Casos**
+### 1. **Problemas com os Endpoints de Agentes e Casos (CRUD e validações)**
 
-Ao analisar seu código, percebi que vários endpoints relacionados a agentes e casos não estão retornando os **status codes** e os formatos de resposta conforme esperado para uma API REST profissional. Isso impacta diretamente o correto funcionamento e a comunicação da sua API.
+Eu percebi que várias operações relacionadas aos agentes e casos estão retornando status incorretos e dados inconsistentes, o que indica que o tratamento dos retornos dos repositórios e o envio das respostas HTTP precisam ser ajustados.
 
-Por exemplo, na função `insertAgent` do seu `agentesController.js`, você tem:
+Por exemplo, no seu `agentesController.js`, na função `getAllAgentCases`, você faz:
 
 ```js
-async function insertAgente(req, res) {
-    const buildedAgent = buildAgent(req.body, 'post');
-    if (!buildedAgent.valid) {
-        const error = createError(400, buildedAgent.message);
-        return res.status(error.status).json({msg: error.msg});
-    }
-    const result = await agentesRepository.insertAgent(buildedAgent.payload);
+if(result.data && result.data.length > 0){
+    res.status(result.status).json(result.data);
+}else{
     res.status(result.status).json(result.data);
 }
 ```
 
-Aqui, você retorna `result.data` diretamente, que é o objeto do agente inserido, mas **não está retornando o objeto completo com a mensagem e o status esperado**, e também não garante que o status code seja exatamente `201 Created`. Se o `result.status` estiver correto, tudo bem, mas é importante que a resposta seja consistente com o que a API espera.
+Aqui, você está sempre retornando `result.data`, mas o que o repositório devolve quando não encontra casos é um objeto de erro criado por `createError()`, que tem formato diferente. Isso pode causar confusão na resposta da API.
 
-Além disso, em vários lugares, você retorna mensagens de erro dentro de um objeto `{msg: error.msg}`, mas em outros retorna o objeto `error` completo, e às vezes só o `result.data`. Essa inconsistência pode confundir consumidores da API.
+**O problema raiz:**  
+Você está tratando o retorno dos repositórios como se fossem sempre dados válidos, mas eles podem ser objetos de erro com propriedades `status` e `msg`. Isso faz com que o servidor retorne status 200 com um objeto de erro, ou status 404 com dados incorretos.
 
-**Sugestão:** Sempre retorne um objeto JSON com uma estrutura clara, por exemplo:
+**Como corrigir:**  
+No controller, você deve verificar se o resultado é um erro (por exemplo, se `result.status` é >= 400) e retornar a resposta apropriada com a mensagem de erro, como:
 
 ```js
-return res.status(201).json({
-  status: 201,
-  msg: "Agente inserido com sucesso",
-  data: insertedAgent
-});
+if(result.status >= 400) {
+    return res.status(result.status).json({ msg: result.msg });
+}
+return res.status(result.status).json(result.data);
 ```
 
-Ou, se preferir, padronize para retornar `{ data: ..., msg: ... }` em todas as respostas, para manter a consistência.
+Isso garante que o cliente receba o status e mensagem corretos.
 
 ---
 
-### 2. Validação de IDs e Retorno de Erros
+### 2. **Validação dos IDs e retorno de erros**
 
-No `agentesController.js` e `casosController.js`, você usa a função `validateID` para validar se o ID é um número inteiro positivo. Isso é ótimo! Porém, notei que ao retornar o erro, você faz:
+Você tem funções como `validateID` que retornam um objeto de erro criado por `createError()`, mas nem sempre o controller verifica corretamente esse retorno antes de prosseguir.
 
-```js
-return res.status(invalid.status).json(invalid);
-```
-
-Porém, o objeto `invalid` é criado via `createError`, que tem a forma:
+Por exemplo, no `casosController.js`:
 
 ```js
-{
-  status: 400,
-  msg: "ID inválido, deve ser número."
+async function getCaseByID(req, res) {
+    const valid = validateID(req.params.id);
+    if (valid){
+        return res.status(valid.status).json(valid);
+    } 
+    // ...
 }
 ```
 
-Ou seja, você está enviando no JSON um objeto com as propriedades `status` e `msg`, mas o cliente esperaria que a mensagem de erro estivesse em uma propriedade `msg` (ou `message`), e o status code deve estar no HTTP, não no corpo.
+Aqui, você retorna `valid` no corpo da resposta, que é o objeto de erro criado. Isso pode expor propriedades desnecessárias.
 
-**Sugestão:** Para manter uma resposta clara, faça algo assim:
+**Melhor prática:**
+
+Retorne uma mensagem clara, como:
 
 ```js
-return res.status(invalid.status).json({ msg: invalid.msg });
+if (valid){
+    return res.status(valid.status).json({ msg: valid.msg });
+}
 ```
 
-Assim o cliente sempre recebe `{ msg: "mensagem de erro" }` e o status HTTP está correto.
+Isso mantém a resposta consistente e limpa.
 
 ---
 
-### 3. Tratamento de Respostas com Status 204 (No Content)
+### 3. **No `authController.js`, atenção ao refresh token**
 
-No seu código, para as operações de exclusão (`delete`), você corretamente retorna status 204 sem corpo quando a exclusão é bem-sucedida. Porém, em alguns pontos, você tenta enviar um JSON após o status 204, o que não é permitido.
+Você implementou a função `refresh` para renovar o token, mas notei que você usa:
 
-Por exemplo, em `deleteAgenteById`:
+```js
+jwt.verify(refreshToken, process.env.REFRESH_SECRET, (err, decoded) => {
+  if (err) {
+    // ...
+  }
+  const newAccessToken = generateAccessToken({ id: decoded.id, username: decoded.username });
+  return res.status(200).json({ acess_token: newAccessToken });
+});
+```
+
+Porém, em outras partes do código, você usa `generateToken` para criar o access token, e o payload do token inclui `user.data` que provavelmente tem `id`, `nome`, `email`, etc. Além disso, você está usando `username` no payload, mas no seu banco não há esse campo, o correto seria usar `nome`.
+
+**O que pode dar errado:**  
+Se o payload do refresh token não tem `username`, o novo access token pode estar sendo gerado com dados incompletos, causando problemas na autenticação.
+
+**Sugestão:**  
+Padronize o payload do token e use os campos corretos. Por exemplo:
+
+```js
+const newAccessToken = generateToken({ id: decoded.id, nome: decoded.nome, email: decoded.email });
+```
+
+Ou ajuste o payload para refletir os dados que você realmente usa.
+
+---
+
+### 4. **Middleware de autenticação**
+
+Seu middleware `authMiddleware.js` está bem implementado e protege as rotas corretamente. Parabéns! 👏
+
+Só um detalhe: ao usar `authHeader.split(' ')[1]` para extrair o token, seria interessante validar se o header está no formato correto `"Bearer <token>"`, para evitar erros inesperados.
+
+Exemplo:
+
+```js
+if (!authHeader.startsWith('Bearer ')) {
+    const error = createError(401, 'Formato de token inválido');
+    return res.status(401).json({ msg: error.msg });
+}
+const token = authHeader.split(' ')[1];
+```
+
+---
+
+### 5. **Resposta dos endpoints de atualização e deleção**
+
+No seu controller, em funções como `deleteAgenteById`, você faz:
 
 ```js
 if (result.status === 204) {
     return res.status(204).send();
-} else {
-    return res.status(result.status).json(result.data);
 }
 ```
 
-Isso está correto. Mas em outros pontos, como `deleteUserById` no `authController.js`, você não envia resposta quando status é 204, o que é adequado.
+Isso está correto, mas em outras funções de update (PUT/PATCH) você retorna status 200 com dados atualizados, o que está alinhado com as boas práticas.
 
-Só fique atento para que **em nenhuma resposta 204 você envie conteúdo no corpo**.
+**Só fique atento para sempre retornar o status correto para cada operação, conforme especificado no projeto.**
 
 ---
 
-### 4. Falta de Tratamento para Payload Inválido em Atualizações (PUT e PATCH)
+### 6. **Inconsistência no nome do campo do token na resposta**
 
-Notei que alguns erros relacionados a payload inválido (exemplo: payload com campos extras ou ausentes) não estão sendo tratados com o status 400 conforme esperado.
-
-No `buildAgent` e `buildCase`, você já faz validações detalhadas, mas no controller, ao receber um payload inválido, você retorna:
+No seu endpoint de login, você retorna:
 
 ```js
-const error = createError(400, buildedAgent.message);
-return res.status(error.status).json({msg: error.msg});
+return res.status(200).json({acess_token: token});
 ```
 
-Isso está correto, mas o problema pode estar na forma como o repositório responde para falhas internas, ou na forma como o controller trata erros lançados pela camada de dados.
-
-**Sugestão:** Garanta que todos os erros de validação sejam capturados no controller e enviem status 400 com mensagens claras.
+Note que o campo está como `acess_token` (sem o segundo "c" do correto "access_token"). Se isso foi intencional para bater com os testes, tudo bem. Só fique atento para manter consistência em toda a API e documentação.
 
 ---
 
-### 5. Consistência na Nomenclatura das Rotas e Endpoints
+### 7. **Estrutura dos diretórios**
 
-No seu arquivo `routes/authRoutes.js`, você tem:
+A estrutura do seu projeto está ótima e segue o padrão esperado, com as pastas:
 
-```js
-router.delete('/users/:id', authMiddleware, deleteUserById);
-router.get('/usuarios/me', authMiddleware, userLogged);
-```
+- `controllers/`
+- `repositories/`
+- `routes/`
+- `middlewares/`
+- `db/migrations` e `db/seeds`
+- `utils/`
 
-Note que você usa `/users/:id` e `/usuarios/me`. Essa mistura de idiomas pode causar confusão.
-
-**Sugestão:** Padronize o idioma das rotas para português ou inglês, por exemplo, use `/usuarios/:id` para deletar usuário, para manter coerência.
-
----
-
-### 6. Pequena Inconsistência no `usuariosRepository.js`
-
-Na função `findUserByEmail`, no catch, você retorna:
-
-```js
-return createError(400, `Não foi encontrado nenhum usuário com esse email: ${e.message}`);
-```
-
-Mas essa mensagem é confusa, pois trata erro de consulta como se fosse "usuário não encontrado". É melhor diferenciar erros de banco de dados de "não encontrado".
+Parabéns por manter essa organização! Isso facilita muito a manutenção e escalabilidade do seu projeto.
 
 ---
 
-### 7. Falta de Implementação Completa de Logout e Refresh Token (Bônus)
+## Recursos que recomendo para você aprofundar e corrigir os pontos acima:
 
-Você implementou logout, mas não vi no código o tratamento para invalidação do token JWT (blacklist ou mecanismo similar). Para produção, isso é importante para segurança.
+- Para entender melhor como trabalhar com autenticação JWT e bcrypt, recomendo muito este vídeo, feito pelos meus criadores, que fala muito bem sobre o assunto:  
+  https://www.youtube.com/watch?v=L04Ln97AwoY
 
-Para o bônus de refresh tokens, não encontrei implementação. Se quiser avançar, recomendo estudar essa funcionalidade.
+- Para aprimorar a manipulação de tokens JWT na prática, este vídeo é excelente:  
+  https://www.youtube.com/watch?v=keS0JWOypIU
 
----
-
-## 🔍 Análise Técnica Detalhada
-
-- O código está muito bem modularizado, com controllers, repositories, middlewares e rotas bem separados. Isso facilita manutenção e testes.  
-- O uso do `bcrypt` para hash de senha e do `jsonwebtoken` para JWT está correto.  
-- O middleware de autenticação está fazendo validação do token JWT de forma adequada.  
-- O uso do Knex para consultas ao banco está correto, e as migrations criam as tabelas conforme esperado.  
-- O arquivo `.env` está sendo usado para manter segredos e configurações, o que é uma ótima prática!  
-
----
-
-## 📚 Recomendações de Estudo para Você
-
-- Para aprimorar o uso do **Knex** e garantir que as queries estejam corretas e otimizadas, recomendo este vídeo:  
-  https://www.youtube.com/watch?v=GLwHSs7t3Ns&t=4s  
-- Para entender melhor sobre **autenticação JWT e segurança**, este vídeo, feito pelos meus criadores, explica muito bem os conceitos fundamentais:  
-  https://www.youtube.com/watch?v=Q4LQOfYwujk  
-- Para aprofundar no uso combinado de **JWT e bcrypt** na prática, veja este tutorial:  
-  https://www.youtube.com/watch?v=L04Ln97AwoY  
-- Para organizar seu projeto com a arquitetura MVC e boas práticas, este vídeo é excelente:  
+- E para garantir que sua aplicação esteja bem estruturada e organizada no padrão MVC, este vídeo vai te ajudar muito:  
   https://www.youtube.com/watch?v=bGN_xNc4A1k&t=3s
 
 ---
 
-## 📝 Resumo dos Principais Pontos para Focar
+## Resumo rápido dos principais pontos para focar:
 
-- **Padronize as respostas da API**, garantindo status code e formato JSON consistentes em todos os endpoints.  
-- **Ajuste o tratamento de erros**, especialmente para validação de IDs e payloads, para sempre retornar mensagens claras e status HTTP corretos.  
-- **Mantenha consistência na nomenclatura das rotas** para evitar confusão (ex: `/usuarios` vs `/users`).  
-- **Evite enviar corpo em respostas 204 No Content**.  
-- **Revise mensagens de erro no repositório para diferenciar erros de consulta e "não encontrado"**.  
-- Considere implementar **refresh tokens e logout com invalidação de JWT** para maior segurança (bônus).  
-- Continue aprimorando a documentação para que o usuário final tenha tudo bem explicado.
+- ✅ Ajustar o tratamento dos retornos dos repositórios nos controllers para diferenciar dados válidos e erros, retornando status e mensagens corretas.  
+- ✅ Padronizar respostas de erro para enviar `{ msg: error.msg }` ao cliente, evitando expor objetos inteiros.  
+- ✅ Revisar a função de refresh token para garantir que o payload do token seja consistente com os dados do usuário.  
+- ✅ Validar melhor o formato do header Authorization no middleware para evitar erros silenciosos.  
+- ✅ Manter consistência no nome dos campos retornados na API (`acess_token` vs `access_token`).  
+- ✅ Continuar com a excelente organização da estrutura de pastas e arquivos.
 
 ---
 
-Rodrigo, você está no caminho certo! Com esses ajustes, sua API vai ficar muito mais profissional, robusta e pronta para produção. Continue praticando e explorando esses conceitos, que você vai longe! 🚀💪
+Rodrigo, você está no caminho certo, e com esses ajustes seu projeto vai ficar muito mais robusto e alinhado com as boas práticas do mercado! 🚀💪
 
-Se precisar de ajuda para entender algum ponto específico, só chamar! Estou aqui para te ajudar a dominar Node.js e segurança de APIs. 😉
+Continue assim, persistente e curioso, que seu código vai brilhar muito! Se precisar de ajuda para entender qualquer ponto, estou aqui para te apoiar! 😉
 
-Um abraço e bons códigos! 👨‍💻✨
+Abraços e bons códigos! 👨‍💻✨
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
