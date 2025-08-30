@@ -48,7 +48,8 @@ function buildUser(data){
     const senha = payload.senha;
     const senhaRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     if (!senhaRegex.test(senha)) {
-        return { valid: false, message: 'Senha não atende aos critérios de segurança.' };
+        return { valid: false, message: 
+            'A senha deve ter no mínimo 8 caracteres e conter pelo menos: uma letra maiúscula, uma letra minúscula, um número e um caractere especial' };
     }
 
     return { valid: true, payload };
@@ -91,15 +92,14 @@ async function login(req, res){
         const error = createError(400, 'Email e senha são obrigatórios.');
         return res.status(error.status).json({msg: error.msg});
     }
-
+    
     try {
         const user = await userRepository.findUserByEmail(email);
         if (user.status === 404) {
             const error = createError(404, user.msg);
             return res.status(error.status).json({msg: error.msg});
         }
-
-
+        
         const isMatch = await bcrypt.compare(senha, user.data.senha);
 
         if (!isMatch) {
@@ -124,7 +124,7 @@ async function login(req, res){
 }
 
 async function refresh(req, res) {
-  const refreshToken = req.cookies.refresh_token || req.body.refresh_token;
+  const refreshToken = (req?.cookies?.refresh_token || req?.body?.refresh_token || '');
 
   if (!refreshToken) {
     const error = createError(401, 'Refresh token ausente');
@@ -137,7 +137,9 @@ async function refresh(req, res) {
       return res.status(error.status).json({ msg: error.msg });
     }
 
-    const newAccessToken = generateAccessToken({ id: decoded.id, username: decoded.username });
+    console.log(decoded)
+
+    const newAccessToken = generateToken({ id: decoded.id, nome: decoded.nome, email: decoded.email });
     return res.status(200).json({ acess_token: newAccessToken });
   });
 }

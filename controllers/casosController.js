@@ -85,6 +85,9 @@ async function getAllCasos(req, res) {
 			return res.status(error.status).json({msg: error.msg});
 		}
 		const result = await casosRepository.findByStatus(status);
+		if(result.status >= 400) {
+			return res.status(result.status).json({ msg: result.msg });
+		}
 		return res.status(result.status).json(result.data);
 	}
 
@@ -94,20 +97,29 @@ async function getAllCasos(req, res) {
 			return res.status(validID.status).json({msg: validID.msg});
 		}
 		const result = await casosRepository.findByAgent(agente_id);
+		if(result.status >= 400) {
+			return res.status(result.status).json({ msg: result.msg });
+		}
 		return res.status(result.status).json(result.data);
 	}
 
 	const result = await casosRepository.findAllCases();
+	if(result.status >= 400) {
+		return res.status(result.status).json({ msg: result.msg });
+	}
 	res.status(result.status).json(result.data);
 }
 
 async function getCaseByID(req, res) {
 	const valid = validateID(req.params.id);
 	if (valid){
-		return res.status(valid.status).json(valid);
+		return res.status(valid.status).json({msg: valid.msg});
 	} 
 	const caseID = req.params.id;
 	const result = await casosRepository.getCaseByID(caseID);
+	if(result.status >= 400) {
+		return res.status(result.status).json({ msg: result.msg });
+	}
 	res.status(result.status).json(result.data);
 }
 
@@ -123,6 +135,9 @@ async function insertCase(req, res) {
 		return res.status(error.status).json({msg: error.msg});
 	}
 	const result = await casosRepository.insertCase(validCaseData.payload);
+	if(result.status >= 400) {
+		return res.status(result.status).json({ msg: result.msg });
+	}
 	return res.status(result.status).json(result.data);
 }
 
@@ -137,6 +152,9 @@ async function updateCaseById(req, res){
 		return res.status(error.status).json({msg: error.msg});
 	}
 	const result = await casosRepository.updateCaseById(req.params.id, validCaseData.payload);
+	if(result.status >= 400) {
+		return res.status(result.status).json({ msg: result.msg });
+	}
 	return res.status(result.status).json(result.data);
 }
 
@@ -151,7 +169,10 @@ async function patchCaseByID(req, res) {
 		return res.status(error.status).json({msg: error.msg});
 	}
 	const result = await casosRepository.patchCaseByID(req.params.id, validCaseData.payload);
-	return res.status(result.status).json(result.data);
+    if(result.status >= 400) {
+        return res.status(result.status).json({ msg: result.msg });
+    }
+    return res.status(result.status).json(result.data);
 }
 
 async function deleteCaseById(req, res) {
@@ -163,6 +184,7 @@ async function deleteCaseById(req, res) {
 	if (result.status === 204) {
 		return res.status(204).send();
 	}
+	return res.status(result.status).json({ msg: result.msg });
 }
 
 

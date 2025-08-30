@@ -1,20 +1,18 @@
 const jwt = require('jsonwebtoken');
-const { configDotenv } = require('dotenv');
-
-configDotenv();
+require('dotenv').config();
 
 function generateToken(payload) {
     const secret = process.env.JWT_SECRET || 'secret';
-    return jwt.sign({ id: payload.id, username: payload.nome }, secret, {
+    return jwt.sign({ id: payload.id, nome: payload.nome, email: payload.email }, secret, {
         expiresIn: '1h',
     });
 }
 
-function generateRefreshToken(user) {
+function generateRefreshToken(payload) {
     return jwt.sign(
-    { id: user.id },
-    process.env.REFRESH_SECRET,
-    { expiresIn: '7d' } // longo
+        { id: payload.id, nome: payload.nome, email: payload.email },
+        process.env.REFRESH_SECRET,
+        { expiresIn: '7d' } 
     );
 }
 

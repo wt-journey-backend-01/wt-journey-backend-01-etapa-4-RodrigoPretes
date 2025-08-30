@@ -9,6 +9,11 @@ const authMiddleware = (req, res, next) => {
 
     } 
 
+    if (!authHeader.startsWith('Bearer ')) {
+        const error = createError(401, 'Formato de token inválido');
+        return res.status(401).json({ msg: error.msg });
+    }
+
     const token = authHeader.split(' ')[1];
     if (!token) {
         const error = createError(401, 'Token ausente')

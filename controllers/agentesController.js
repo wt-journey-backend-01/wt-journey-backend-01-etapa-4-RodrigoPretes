@@ -83,7 +83,10 @@ async function getAllAgentes(req, res) {
     }
 
     const result = await agentesRepository.findAllAgents();
-    res.status(result.status).json(result.data);
+    if(result.status >= 400) {
+        return res.status(result.status).json({ msg: result.msg });
+    }
+    return res.status(result.status).json(result.data);
 }
 
 async function getAgenteByID(req, res) {
@@ -92,7 +95,10 @@ async function getAgenteByID(req, res) {
         return res.status(invalid.status).json({msg: invalid.msg});
     } 
     const result = await agentesRepository.getAgentByID(req.params.id);
-    res.status(result.status).json(result.data);
+    if(result.status >= 400) {
+        return res.status(result.status).json({ msg: result.msg });
+    }
+    return res.status(result.status).json(result.data);
 }
 
 async function getAllAgentCases(req, res) {
@@ -101,11 +107,11 @@ async function getAllAgentCases(req, res) {
         return res.status(invalid.status).json({msg: invalid.msg});
     } 
     const result = await agentesRepository.findAllAgentCases(req.params.id);
-    if(result.data && result.data.length > 0){
-        res.status(result.status).json(result.data);
-    }else{
-        res.status(result.status).json(result.data);
+    
+    if(result.status >= 400) {
+        return res.status(result.status).json({ msg: result.msg });
     }
+    return res.status(result.status).json(result.data);
 }
 
 async function insertAgente(req, res) {
@@ -115,7 +121,10 @@ async function insertAgente(req, res) {
         return res.status(error.status).json({msg: error.msg});
     }
     const result = await agentesRepository.insertAgent(buildedAgent.payload);
-    res.status(result.status).json(result.data);
+    if(result.status >= 400) {
+        return res.status(result.status).json({ msg: result.msg });
+    }
+    return res.status(result.status).json(result.data);
 }
 
 async function updateAgenteById(req, res) {
@@ -129,7 +138,10 @@ async function updateAgenteById(req, res) {
         return res.status(error.status).json({msg: error.msg});
     }
     const result = await agentesRepository.updateAgentById(req.params.id, buildedAgent.payload);
-    res.status(result.status).json(result.data);
+    if(result.status >= 400) {
+        return res.status(result.status).json({ msg: result.msg });
+    }
+    return res.status(result.status).json(result.data);
 }
 
 async function patchAgenteByID(req, res) {
@@ -143,7 +155,10 @@ async function patchAgenteByID(req, res) {
         return res.status(error.status).json({msg: error.msg});
     }
     const result = await agentesRepository.patchAgentByID(req.params.id, validAgentPatch.payload);
-    res.status(result.status).json(result.data);
+    if(result.status >= 400) {
+        return res.status(result.status).json({ msg: result.msg });
+    }
+    return res.status(result.status).json(result.data);
 }
 
 async function deleteAgenteById(req, res) {
@@ -155,6 +170,7 @@ async function deleteAgenteById(req, res) {
     if (result.status === 204) {
         return res.status(204).send();
     }
+    return res.status(result.status).json({ msg: result.msg });
 }
 
 module.exports = {
