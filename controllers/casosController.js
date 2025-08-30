@@ -71,7 +71,7 @@ async function buildCase(data, method){
 function validateID(id) {
     const idNumber = Number(id);
     if (isNaN(idNumber) || !Number.isInteger(idNumber) || idNumber <= 0) {
-        return createError(400, "ID inválido, deve ser número.");
+        return createError(400, "ID inválido, deve ser número inteiro positivo.");
     }
 	return null;
 }

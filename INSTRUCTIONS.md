@@ -86,7 +86,7 @@ Acesse a documentação Swagger em: [http://localhost:3000/docs](http://localhos
 - **Resposta:**
   ```json
   {
-    "acess_token": "seu_token_jwt"
+    "access_token": "seu_token_jwt"
   }
   ```
 

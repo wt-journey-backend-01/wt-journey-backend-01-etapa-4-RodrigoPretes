@@ -91,7 +91,7 @@ jwt.verify(refreshToken, process.env.REFRESH_SECRET, (err, decoded) => {
     // ...
   }
   const newAccessToken = generateAccessToken({ id: decoded.id, username: decoded.username });
-  return res.status(200).json({ acess_token: newAccessToken });
+  return res.status(200).json({ access_token: newAccessToken });
 });
 ```
 
@@ -150,10 +150,10 @@ Isso está correto, mas em outras funções de update (PUT/PATCH) você retorna 
 No seu endpoint de login, você retorna:
 
 ```js
-return res.status(200).json({acess_token: token});
+return res.status(200).json({access_token: token});
 ```
 
-Note que o campo está como `acess_token` (sem o segundo "c" do correto "access_token"). Se isso foi intencional para bater com os testes, tudo bem. Só fique atento para manter consistência em toda a API e documentação.
+Note que o campo está como `access_token` (sem o segundo "c" do correto "access_token"). Se isso foi intencional para bater com os testes, tudo bem. Só fique atento para manter consistência em toda a API e documentação.
 
 ---
 
@@ -191,7 +191,7 @@ Parabéns por manter essa organização! Isso facilita muito a manutenção e es
 - ✅ Padronizar respostas de erro para enviar `{ msg: error.msg }` ao cliente, evitando expor objetos inteiros.  
 - ✅ Revisar a função de refresh token para garantir que o payload do token seja consistente com os dados do usuário.  
 - ✅ Validar melhor o formato do header Authorization no middleware para evitar erros silenciosos.  
-- ✅ Manter consistência no nome dos campos retornados na API (`acess_token` vs `access_token`).  
+- ✅ Manter consistência no nome dos campos retornados na API (`access_token` vs `access_token`).  
 - ✅ Continuar com a excelente organização da estrutura de pastas e arquivos.
 
 ---

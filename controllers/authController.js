@@ -115,7 +115,7 @@ async function login(req, res){
             sameSite: 'Strict',
         });
 
-        return res.status(200).json({acess_token: token});
+        return res.status(200).json({access_token: token});
 
     } catch (e) {
         const error = createError(500, e.message);
@@ -140,7 +140,7 @@ async function refresh(req, res) {
     console.log(decoded)
 
     const newAccessToken = generateToken({ id: decoded.id, nome: decoded.nome, email: decoded.email });
-    return res.status(200).json({ acess_token: newAccessToken });
+    return res.status(200).json({ access_token: newAccessToken });
   });
 }
 

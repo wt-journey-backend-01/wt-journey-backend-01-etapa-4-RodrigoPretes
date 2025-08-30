@@ -45,7 +45,7 @@ async function findByAgent(agente_id) {
         const casesByAgent = await db.select('*').from('casos').where('casos.agente_id', agente_id);
 
         if(!casesByAgent.length){
-            return createError(404, `Não forma encontrados casos para o agente informado com ID: ${agente_id}.`);
+            return createError(404, `Não foram encontrados casos para o agente informado com ID: ${agente_id}.`);
         }
 
 
