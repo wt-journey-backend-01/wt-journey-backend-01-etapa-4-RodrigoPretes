@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/auth/register', register);
 router.post('/auth/login', login);
 router.post('/auth/refresh', refresh);
-router.delete('/usuarios/:id', authMiddleware, deleteUserById);
+router.delete('/users/:id', authMiddleware, deleteUserById);
 router.get('/usuarios/me', authMiddleware, userLogged);
 
 module.exports = router;

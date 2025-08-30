@@ -124,24 +124,30 @@ async function login(req, res){
 }
 
 async function refresh(req, res) {
-  const refreshToken = (req?.cookies?.refresh_token || req?.body?.refresh_token || '');
+    try{
 
-  if (!refreshToken) {
-    const error = createError(401, 'Refresh token ausente');
-    return res.status(error.status).json({ msg: error.msg });
-  }
-
-  jwt.verify(refreshToken, process.env.REFRESH_SECRET, (err, decoded) => {
-    if (err) {
-      const error = createError(403, 'Refresh token inválido');
-      return res.status(error.status).json({ msg: error.msg });
+        const refreshToken = (req?.cookies?.refresh_token || req?.body?.refresh_token || '');
+        
+        if (!refreshToken) {
+            const error = createError(401, 'Refresh token ausente');
+            return res.status(error.status).json({ msg: error.msg });
+        }
+        
+        const refreshTokenSecret = process.env.REFRESH_SECRET || 'refresh_secret';
+        
+        jwt.verify(refreshToken, refreshTokenSecret, (err, decoded) => {
+        if (err) {
+            const error = createError(403, 'Refresh token inválido');
+            return res.status(error.status).json({ msg: error.msg });
+        }
+        
+        const newAccessToken = generateToken({ id: decoded.id, nome: decoded.nome, email: decoded.email });
+        return res.status(200).json({ access_token: newAccessToken });
+    });
+    }catch(e){
+        const error = createError(500, e.message);
+        return res.status(error.status).json({msg: error.msg});
     }
-
-    console.log(decoded)
-
-    const newAccessToken = generateToken({ id: decoded.id, nome: decoded.nome, email: decoded.email });
-    return res.status(200).json({ access_token: newAccessToken });
-  });
 }
 
 async function deleteUserById(req, res) {

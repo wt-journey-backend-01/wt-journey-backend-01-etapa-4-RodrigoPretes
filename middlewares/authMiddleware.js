@@ -20,7 +20,9 @@ const authMiddleware = (req, res, next) => {
         return res.status(401).json({ msg: error.msg });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    const accessTokenSecret = process.env.JWT_SECRET || 'secret';
+
+    jwt.verify(token, accessTokenSecret, (err, decoded) => {
         if (err) {
             const error = createError(401, 'Token inválido')
             return res.status(401).json({ msg: error.msg });

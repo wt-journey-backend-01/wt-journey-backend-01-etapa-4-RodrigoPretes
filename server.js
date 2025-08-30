@@ -8,11 +8,11 @@ const PORT = process.env.PORT_SERVER || 3000;
 const cookieParser = require('cookie-parser');
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(casosRouter);
 app.use(agentesRouter);
 app.use(authRouter);
-app.use(cookieParser());
 
 const setupSwagger = require('./docs/swagger');
 setupSwagger(app);
