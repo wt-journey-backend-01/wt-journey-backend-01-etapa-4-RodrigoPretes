@@ -13,7 +13,10 @@ async function findAllAgents() {
     
         return {
             status: 200,
-            data: agentes,
+            data: agentes.map(agente => ({
+                ...agente,
+                dataDeIncorporacao: new Date(agente.dataDeIncorporacao).toISOString().split('T')[0]
+            })),
             msg: "Lista de agentes obtida com sucesso",
         };
     }catch(e){
@@ -31,7 +34,10 @@ async function getAgentByID(id) {
         
         return {
             status: 200,
-            data: agente[0],
+            data:  {
+                ...agente[0],
+                dataDeIncorporacao: new Date(agente[0].dataDeIncorporacao).toISOString().split('T')[0]
+            },
             msg: "Agente encontrado com sucesso",
         };
     }catch(e){
@@ -41,18 +47,18 @@ async function getAgentByID(id) {
 
 async function findAllAgentCases(agentID) {
     try{
-        const agente = await db('casos as c')
+        const agentCases = await db('casos as c')
                             .join('agentes as a', 'a.id', 'c.agente_id')
                             .select('c.*') 
                             .where('c.agente_id', agentID);
 
-        if(!agente.length){ 
+        if(!agentCases.length){ 
             return createError(404, `Não foi encontrado nenhum caso pertecente ao agente com o id: ${agentID}, na nossa base de dados.`);
         };
         
         return {
             status: 200,
-            data: agente,
+            data:  agentCases,
             msg: "Agente encontrado com sucesso",
         };
     }catch(e){
@@ -62,15 +68,18 @@ async function findAllAgentCases(agentID) {
 
 async function findByCargo(cargo) {
     try{
-        const agente = await db.select('*').from('agentes').where('agentes.cargo', cargo);
+        const agentes = await db.select('*').from('agentes').where('agentes.cargo', cargo);
 
-        if(!agente.length){
+        if(!agentes.length){
             return createError(404, `Não foi encontrado nenhum agente com o cargo ${cargo}, na nossa base de dados.`);
         };
 
         return {
             status: 200,
-            data: agente, 
+            data: agentes.map(agente => ({
+                ...agente,
+                dataDeIncorporacao: new Date(agente.dataDeIncorporacao).toISOString().split('T')[0]
+            })),
             msg: 'Agente(s) encontrado(s) com sucesso.'
         };
     }catch(e){
@@ -88,7 +97,10 @@ async function sortByIncorporation(sortParam) {
         
         return {
             status: 200,
-            data: sorted,
+            data: sorted.map(sortedAgent => ({
+                ...sortedAgent,
+                dataDeIncorporacao: new Date(sortedAgent.dataDeIncorporacao).toISOString().split('T')[0]
+            })),
             msg: "Busca de agentes ordenados por dataDeIncorporacao realizada com sucesso."
         };
     }catch(e){

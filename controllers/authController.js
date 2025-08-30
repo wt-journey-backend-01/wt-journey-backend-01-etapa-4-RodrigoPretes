@@ -115,7 +115,7 @@ async function login(req, res){
             sameSite: 'Strict',
         });
 
-        return res.status(200).json({access_token: token});
+        return res.status(200).json({ access_token: token, refresh_token: refreshToken });
 
     } catch (e) {
         const error = createError(500, e.message);
